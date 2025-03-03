@@ -7,6 +7,7 @@ import { env } from "../env";
 import { BrowserLauncherOptions } from "../types";
 import { ProxyServer } from "../utils/proxy";
 import { Protocol } from "devtools-protocol";
+import { Readable } from "stream";
 
 type Session = SessionDetails & {
   completion: Promise<void>;
@@ -204,14 +205,14 @@ export class SessionService {
     return this.activeSession;
   }
 
-  public async uploadFileToSession(
-    content: Buffer,
+  public async uploadFileStreamToSession(
+    stream: Readable,
     options: { fileName?: string; mimeType?: string; metadata?: Record<string, any> } = {},
   ): Promise<{ id: string; fileSize: number }> {
     const { fileStorage } = await import("../utils/file-storage");
 
     try {
-      const { id, fileSize } = await fileStorage.saveFile(this.activeSession.id, content, {
+      const { id, fileSize } = await fileStorage.saveFile(this.activeSession.id, stream, {
         fileName: options.fileName,
         mimeType: options.mimeType,
         metadata: options.metadata,
